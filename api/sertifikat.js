@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const API_KEY = process.env.GOOGLE_API_KEY;
   const SHEET_NAME = 'Data'; // ganti sesuai nama sheet kamu
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${'17YbDUtuIvcQMJWQVgDNTJe9M5NXPt94dMKSm_ur4NSs'}/values/${'data'}?key=${AIzaSyD_WoOgoZNsG_MoLnDf9NHsWJEll6zNi74}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${SHEET_NAME}?key=${API_KEY}`;
 
   try {
     const response = await fetch(url);
