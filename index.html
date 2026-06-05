@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Sertifikat</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Download Sertifikat</h1>
+    <p>Masukkan nama lengkap sesuai data pendaftaran</p>
+
+    <div class="form-group">
+      <input type="text" id="inputNama" placeholder="Nama lengkap kamu..." />
+      <button onclick="cariSertifikat()">Cari</button>
+    </div>
+
+    <div id="loading" style="display:none">Mencari data...</div>
+    <div id="error" class="error" style="display:none"></div>
+
+    <!-- Preview sertifikat -->
+    <div id="preview" style="display:none">
+      <div class="sertifikat" id="sertifikat">
+        <h2>Sertifikat Kelulusan</h2>
+        <p>Diberikan kepada:</p>
+        <h1 id="cert-nama"></h1>
+        <p id="cert-acara"></p>
+        <p id="cert-tanggal"></p>
+      </div>
+      <button onclick="downloadPDF()">⬇ Download PDF</button>
+    </div>
+  </div>
+
+  <script>
+    async function cariSertifikat() {
+      const nama = document.getElementById('inputNama').value.trim();
+      const loading = document.getElementById('loading');
+      const error = document.getElementById('error');
+      const preview = document.getElementById('preview');
+
+      if (!nama) {
+        alert('Nama tidak boleh kosong!');
+        return;
+      }
+
+      // Reset tampilan
+      error.style.display = 'none';
+      preview.style.display = 'none';
+      loading.style.display = 'block';
+
+      try {
+        const res = await fetch(`/api/sertifikat?nama=${encodeURIComponent(nama)}`);
+        const data = await res.json();
+
+        loading.style.display = 'none';
+
+        if (!res.ok) {
+          error.textContent = data.error || 'Terjadi kesalahan';
+          error.style.display = 'block';
+          return;
+        }
+
+        // Tampilkan preview — sesuaikan nama kolom dengan header Sheet kamu
+        document.getElementById('cert-nama').textContent = data['Nama'] || nama;
+        document.getElementById('cert-acara').textContent = data['Acara'] || '';
+        document.getElementById('cert-tanggal').textContent = data['Tanggal'] || '';
+
+        preview.style.display = 'block';
+
+      } catch (err) {
+        loading.style.display = 'none';
+        error.textContent = 'Gagal menghubungi server';
+        error.style.display = 'block';
+      }
+    }
+
+    function downloadPDF() {
+      window.print(); // Cara sederhana, nanti bisa upgrade pakai html2pdf.js
+    }
+  </script>
+</body>
+</html>
