@@ -3,7 +3,7 @@ export default async function handler(req, res) {
   const API_KEY = process.env.GOOGLE_API_KEY;
   const SHEET_NAME = 'Jadwal';
 
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${'17YbDUtuIvcQMJWQVgDNTJe9M5NXPt94dMKSm_ur4NSs'}/values/${'data'}?key=${AIzaSyA4w5C-S9lgnrv92di1JdyNEj_17sxtFKw}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${'17YbDUtuIvcQMJWQVgDNTJe9M5NXPt94dMKSm_ur4NSs'}/values/${'Jadwal'}?key=${AIzaSyA4w5C-S9lgnrv92di1JdyNEj_17sxtFKw}`;
 
   try {
     const response = await fetch(url);
