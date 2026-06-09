@@ -95,63 +95,57 @@
 
   <script>
     async function loadJadwal() {
-      const loading = document.getElementById('loading');
-      const error = document.getElementById('error');
-      const tabelWrapper = document.getElementById('tabel-wrapper');
-      const thead = document.getElementById('thead');
-      const tbody = document.getElementById('tbody');
-      // const badge = document.getElementById('badge-total');
-      const totalText = document.getElementById('total-text');
+  const loading = document.getElementById('loading');
+  const error = document.getElementById('error');
+  const tabelWrapper = document.getElementById('tabel-wrapper');
+  const thead = document.getElementById('thead');
+  const tbody = document.getElementById('tbody');
+  const totalText = document.getElementById('total-text');
 
-      try {
-        const res = await fetch('/api/jadwal');
-        const data = await res.json();
+  try {
+    const res = await fetch('/api/jadwal');
+    const data = await res.json();
 
-        loading.style.display = 'none';
+    loading.style.display = 'none';
 
-        if (!res.ok) {
-          error.textContent = data.error || 'Terjadi kesalahan';
-          error.style.display = 'block';
-          // badge.textContent = 'Error';
-          return;
-        }
-
-        // Buat header tabel dari key object pertama
-        const headers = Object.keys(data[0]);
-        const headerRow = document.createElement('tr');
-        headers.forEach(h => {
-          const th = document.createElement('th');
-          th.textContent = h;
-          headerRow.appendChild(th);
-        });
-        thead.appendChild(headerRow);
-
-        // Isi baris data
-        data.forEach(item => {
-          const row = document.createElement('tr');
-          headers.forEach(h => {
-            const td = document.createElement('td');
-            td.textContent = item[h];
-            row.appendChild(td);
-          });
-          tbody.appendChild(row);
-        });
-
-        // Update badge dan total
-        // badge.textContent = `${data.length} Kegiatan`;
-        totalText.textContent = `Total: ${data.length} kegiatan`;
-        tabelWrapper.style.display = 'block';
-
-      } catch (err) {
-        loading.style.display = 'none';
-        error.textContent = 'Gagal menghubungi server';
-        error.style.display = 'block';
-        // badge.textContent = 'Error';
-      }
+    if (!res.ok) {
+      error.textContent = data.error || 'Terjadi kesalahan';
+      error.style.display = 'block';
+      return;
     }
 
-    // Load otomatis saat halaman dibuka
-    loadJadwal();
+    // Buat header tabel dari key object pertama
+    const headers = Object.keys(data[0]);
+    const headerRow = document.createElement('tr');
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+
+    // Isi baris data
+    data.forEach(item => {
+      const row = document.createElement('tr');
+      headers.forEach(h => {
+        const td = document.createElement('td');
+        td.textContent = item[h];
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+
+    totalText.textContent = `Total: ${data.length} kegiatan`;
+    tabelWrapper.style.display = 'block';
+
+  } catch (err) {
+    loading.style.display = 'none';
+    error.textContent = 'Gagal menghubungi server';
+    error.style.display = 'block';
+  }
+}
+
+loadJadwal();
   </script>
 </body>
 </html>
