@@ -3,54 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Download Sertifikat</title>
+  <title>Dashboard Jadwal</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .header-dashboard {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .badge {
+      background: #e8f0fe;
+      color: #4285f4;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    thead tr {
+      background: #4285f4;
+      color: white;
+    }
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    tbody tr:hover {
+      background: #f5f9ff;
+    }
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+    .error {
+      text-align: center;
+      padding: 40px;
+      color: red;
+    }
+    .nav-link {
+      display: inline-block;
+      margin-bottom: 16px;
+      color: #4285f4;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+    .total {
+      text-align: right;
+      margin-top: 12px;
+      color: #888;
+      font-size: 14px;
+    }
+    .center h1{
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Download Sertifikat</h1>
-    <p>Masukkan nama lengkap sesuai data pendaftaran</p>
 
-    <div class="form-group">
-      <input type="text" id="inputNama" placeholder="Nama lengkap kamu..." />
-      <button onclick="cariSertifikat()">Cari</button>
-    </div>
-
-    <div id="loading" style="display:none">Mencari data...</div>
+    <!-- <div class="header-dashboard">
+      <div class="center">
+        <h1>Dashboard Jadwal</h1>
+        <p>Daftar kegiatan dan acara yang akan datang</p>
+      </div>
+      <span class="badge" id="badge-total">Memuat...</span>
+    </div> -->
+<h1>Dashboard Jadwal Kegiatan Kalibrasi</h1>
+    <div id="loading" class="loading">Mengambil data jadwal...</div>
     <div id="error" class="error" style="display:none"></div>
 
-    <!-- Preview sertifikat -->
-    <div id="preview" style="display:none">
-      <div class="sertifikat" id="sertifikat">
-        <h2>Sertifikat Kelulusan</h2>
-        <p>Diberikan kepada:</p>
-        <h1 id="cert-nama"></h1>
-        <p id="cert-acara"></p>
-        <p id="cert-tanggal"></p>
-      </div>
-      <button onclick="downloadPDF()">⬇ Download PDF</button>
+    <div id="tabel-wrapper" style="display:none">
+      <table>
+        <thead id="thead"></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <p class="total" id="total-text"></p>
     </div>
   </div>
 
   <script>
-    async function cariSertifikat() {
-      const nama = document.getElementById('inputNama').value.trim();
+    async function loadJadwal() {
       const loading = document.getElementById('loading');
       const error = document.getElementById('error');
-      const preview = document.getElementById('preview');
-
-      if (!nama) {
-        alert('Nama tidak boleh kosong!');
-        return;
-      }
-
-      // Reset tampilan
-      error.style.display = 'none';
-      preview.style.display = 'none';
-      loading.style.display = 'block';
+      const tabelWrapper = document.getElementById('tabel-wrapper');
+      const thead = document.getElementById('thead');
+      const tbody = document.getElementById('tbody');
+      const badge = document.getElementById('badge-total');
+      const totalText = document.getElementById('total-text');
 
       try {
-        const res = await fetch(`/api/sertifikat?nama=${encodeURIComponent(nama)}`);
+        const res = await fetch('/api/jadwal');
         const data = await res.json();
 
         loading.style.display = 'none';
@@ -58,26 +112,46 @@
         if (!res.ok) {
           error.textContent = data.error || 'Terjadi kesalahan';
           error.style.display = 'block';
+          badge.textContent = 'Error';
           return;
         }
 
-        // Tampilkan preview — sesuaikan nama kolom dengan header Sheet kamu
-        document.getElementById('cert-nama').textContent = data['Nama'] || nama;
-        document.getElementById('cert-acara').textContent = data['Acara'] || '';
-        document.getElementById('cert-tanggal').textContent = data['Tanggal'] || '';
+        // Buat header tabel dari key object pertama
+        const headers = Object.keys(data[0]);
+        const headerRow = document.createElement('tr');
+        headers.forEach(h => {
+          const th = document.createElement('th');
+          th.textContent = h;
+          headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
 
-        preview.style.display = 'block';
+        // Isi baris data
+        data.forEach(item => {
+          const row = document.createElement('tr');
+          headers.forEach(h => {
+            const td = document.createElement('td');
+            td.textContent = item[h];
+            row.appendChild(td);
+          });
+          tbody.appendChild(row);
+        });
+
+        // Update badge dan total
+        badge.textContent = `${data.length} Kegiatan`;
+        totalText.textContent = `Total: ${data.length} kegiatan`;
+        tabelWrapper.style.display = 'block';
 
       } catch (err) {
         loading.style.display = 'none';
         error.textContent = 'Gagal menghubungi server';
         error.style.display = 'block';
+        badge.textContent = 'Error';
       }
     }
 
-    function downloadPDF() {
-      window.print(); // Cara sederhana, nanti bisa upgrade pakai html2pdf.js
-    }
+    // Load otomatis saat halaman dibuka
+    loadJadwal();
   </script>
 </body>
 </html>
